@@ -2,37 +2,41 @@
   <nav>
     <router-link to="/">Home</router-link> |
     <router-link to="/about">About</router-link>
+    <div>{{ userInfo }}</div>
   <router-view/>
   </nav>
 </template>
 
-<!--<template>-->
-<!--  <div>-->
-<!--    <router-view>-->
-<!--          <router-link to="/">Home</router-link> |-->
-<!--          <router-link to="/about">About</router-link>-->
-<!--    </router-view>-->
-<!--  </div>-->
-<!--</template>-->
-<!--<style>-->
-<!--#app {-->
-<!--  font-family: Avenir, Helvetica, Arial, sans-serif;-->
-<!--  -webkit-font-smoothing: antialiased;-->
-<!--  -moz-osx-font-smoothing: grayscale;-->
-<!--  text-align: center;-->
-<!--  color: #2c3e50;-->
-<!--}-->
+<script>
+import { onMounted } from 'vue';
+import { mapGetters } from "vuex";
 
-<!--nav {-->
-<!--  padding: 30px;-->
-<!--}-->
+import store from "@/store"
+import * as AUTH_CONSTANTS from '@/store/modules/auth/constants'
+import {GETTERS} from "@/store/modules/auth/constants";
 
-<!--nav a {-->
-<!--  font-weight: bold;-->
-<!--  color: #2c3e50;-->
-<!--}-->
+document.$store = store
 
-<!--nav a.router-link-exact-active {-->
-<!--  color: #42b983;-->
-<!--}-->
-<!--</style>-->
+export default {
+  computed: {
+    ...mapGetters({
+      userInfo: `auth/${GETTERS.USER_INFO}`
+    })
+  },
+  setup: () => {
+    onMounted(() => {
+      const data = localStorage.getItem(AUTH_CONSTANTS.LOCALSTORAGE_KEY)
+
+      console.log(store)
+      if (data) {
+        try {
+          const parsed = JSON.parse(data)
+          store.commit(`auth/${AUTH_CONSTANTS.MUTATIONS.SET_USER}`, parsed)
+        } catch (ignore) {
+          console.log(`error while parsing JSON: ${data}`)
+        }
+      }
+    })
+  }
+}
+</script>

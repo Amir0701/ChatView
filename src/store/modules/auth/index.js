@@ -1,4 +1,4 @@
-import {authService} from '@/services'
+import { authService } from '@/services'
 
 import {
     ACTIONS,
@@ -8,8 +8,8 @@ import {
 } from './constants'
 
 const initialState = {
-    isAuthenticated: false,
-    user: {
+    token: '',
+    userDetails: {
         username: '',
         name: ''
     }
@@ -21,30 +21,34 @@ export default {
         ...initialState
     },
     getters: {
-        [GETTERS.IS_AUTHENTICATED]: state => state.isAuthenticated,
-        [GETTERS.USER_INFO]: state => state.user
+        [GETTERS.IS_AUTHENTICATED]: state => !!state.token,
+        [GETTERS.USER_INFO]: state => state.userDetails,
+        [GETTERS.TOKEN]: state => state.token
     },
     mutations: {
-        [MUTATIONS.SET_USER]: (state, payload) => {
-            state.user = payload?.user
-            state.isAuthenticated = true
+        [MUTATIONS.SET_USER]: (state, userDetails) => {
+            state.userDetails = userDetails
         },
 
         [MUTATIONS.RESET_STORE]: (state) => {
-            state.user = initialState.user;
-            state.isAuthenticated = false;
+            state.userDetails = initialState.userDetails;
+            state.token = '';
+        },
+
+        [MUTATIONS.SET_TOKEN]: (state, token) => {
+            state.token = token
         }
     },
     actions: {
         [ACTIONS.LOGIN]: async (context, user) => {
             const data = await authService.login(user)
 
-            console.log(data)
             if (!data) {
                 await context.dispatch(ACTIONS.LOGOUT)
             } else {
-                localStorage.setItem(LOCALSTORAGE_KEY, JSON.stringify(data))
-                await context.commit(MUTATIONS.SET_USER, data)
+                localStorage.setItem(LOCALSTORAGE_KEY, data.token)
+                await context.commit(MUTATIONS.SET_TOKEN, data.token)
+                await context.commit(MUTATIONS.SET_USER, data.user)
             }
         },
 

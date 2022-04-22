@@ -13,14 +13,13 @@ import { mapGetters } from "vuex";
 
 import store from "@/store"
 import * as AUTH_CONSTANTS from '@/store/modules/auth/constants'
-import {GETTERS} from "@/store/modules/auth/constants";
 
 document.$store = store
 
 export default {
   computed: {
     ...mapGetters({
-      userInfo: `auth/${GETTERS.USER_INFO}`
+      userInfo: `auth/${AUTH_CONSTANTS.GETTERS.USER_INFO}`
     })
   },
   setup: () => {

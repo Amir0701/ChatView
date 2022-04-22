@@ -1,9 +1,9 @@
 import {authService} from '@/services'
 
 import {
+    ACTIONS,
     GETTERS,
     MUTATIONS,
-    ACTIONS,
     LOCALSTORAGE_KEY
 } from './constants'
 

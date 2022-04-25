@@ -7,7 +7,6 @@
 </template>
 
 <script>
-import { onMounted } from 'vue';
 import { mapGetters } from "vuex";
 
 import store from "@/store"
@@ -20,15 +19,9 @@ export default {
       userInfo: `auth/${AUTH_CONSTANTS.GETTERS.USER_INFO}`
     })
   },
-  setup: () => {
-    onMounted(() => {
-      // for debug store in dev mode
-      if (process.env.NODE_ENV === 'development') document.$store = store;
-
-      const token = localStorage.getItem(AUTH_CONSTANTS.LOCALSTORAGE_KEY)
-
-      if (token) store.commit(`auth/${AUTH_CONSTANTS.MUTATIONS.SET_TOKEN}`, token)
-    })
+  created() {
+    // for debug store in dev mode
+    if (process.env.NODE_ENV === 'development') document.$store = store;
   }
 }
 </script>

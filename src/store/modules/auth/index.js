@@ -36,6 +36,7 @@ export default {
         },
 
         [MUTATIONS.SET_TOKEN]: (state, token) => {
+            console.log(`set token`)
             state.token = token
         }
     },

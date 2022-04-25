@@ -1,11 +1,9 @@
 import { createStore } from 'vuex'
-//import Vue from 'vue'
-//import Vuex from 'vuex'
-import Api from "@/services/api";
-//Vue.use(Vuex)
+
+import auth from './modules/auth'
 
 export default createStore({
-  state: {
+  /*state: {
     list: []
   },
   getters: {
@@ -51,7 +49,8 @@ export default createStore({
         
       }
     }
-  },
+  },*/
   modules: {
+    auth
   }
 })

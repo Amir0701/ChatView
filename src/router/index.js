@@ -1,9 +1,10 @@
-import { createRouter, createWebHashHistory } from 'vue-router'
-
-import store from '@/store'
-import { GETTERS } from '@/store/modules/auth/constants'
+import Vue from 'vue'
+import VueRouter from 'vue-router'
 
 import Login from '@/views/Login';
+import * as AUTH_CONSTANTS from "@/store/modules/auth/constants";
+
+Vue.use(VueRouter)
 
 const routes = [
   {
@@ -22,13 +23,14 @@ const routes = [
   }
 ]
 
-const router = createRouter({
-  history: createWebHashHistory(),
+const router = new VueRouter({
+  mode: 'history',
+  base: process.env.BASE_URL,
   routes
 })
 
 router.beforeEach((to, from, next) => {
-  const isAuthenticated = store.getters[`auth/${GETTERS.IS_AUTHENTICATED}`]
+  const isAuthenticated = !!localStorage.getItem(AUTH_CONSTANTS.LOCALSTORAGE_KEY)
 
   if (!isAuthenticated && to.path !== '/login') next({ name: 'login' })
   else if (isAuthenticated && to.path !== '/chats') next({ name: 'chats' })

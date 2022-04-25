@@ -1,6 +1,9 @@
 <template>
-  <div>{{ userInfo }}</div>
-  <router-view/>
+  <v-app>
+    <v-main>
+      <router-view/>
+    </v-main>
+  </v-app>
 </template>
 
 <script>
@@ -11,6 +14,7 @@ import store from "@/store"
 import * as AUTH_CONSTANTS from '@/store/modules/auth/constants'
 
 export default {
+  name: 'ChatView',
   computed: {
     ...mapGetters({
       userInfo: `auth/${AUTH_CONSTANTS.GETTERS.USER_INFO}`

@@ -2,7 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 
 import Login from '@/views/Login'
-import {authGuard, notFound, redirectFromLogin} from "@/router/authGuard"
+import {authGuard, notFound, /*redirectFromLogin*/} from "@/router/authGuard"
 
 Vue.use(VueRouter)
 
@@ -15,7 +15,7 @@ const routes = [
     path: '/login',
     name: 'login',
     component: Login,
-    beforeEnter: redirectFromLogin
+    //beforeEnter: redirectFromLogin
   },
   {
     path: '/chat',

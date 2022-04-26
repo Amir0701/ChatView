@@ -1,25 +1,35 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 
-import Login from '@/views/Login';
-import * as AUTH_CONSTANTS from "@/store/modules/auth/constants";
+import Login from '@/views/Login'
+import {authGuard, notFound, redirectFromLogin} from "@/router/authGuard"
 
 Vue.use(VueRouter)
 
 const routes = [
   {
     path: '/',
-    redirect: 'chats'
+    redirect: 'chat'
   },
   {
     path: '/login',
     name: 'login',
-    component: Login
+    component: Login,
+    beforeEnter: redirectFromLogin
   },
   {
-    path: '/chats',
+    path: '/chat',
     name: 'chats',
-    component: () => import('@/views/Chats')
+    component: () => import('@/views/Chats'),
+    beforeEnter: authGuard
+  },
+  {
+    path: '*',
+    beforeEnter: notFound
+  },
+  { // 404
+    path: '/not-found',
+    component: () => import('@/views/NotFound')
   }
 ]
 
@@ -27,14 +37,6 @@ const router = new VueRouter({
   mode: 'history',
   base: process.env.BASE_URL,
   routes
-})
-
-router.beforeEach((to, from, next) => {
-  const isAuthenticated = !!localStorage.getItem(AUTH_CONSTANTS.LOCALSTORAGE_KEY)
-
-  if (!isAuthenticated && to.path !== '/login') next({ name: 'login' })
-  else if (isAuthenticated && to.path !== '/chats') next({ name: 'chats' })
-  else next()
 })
 
 export default router

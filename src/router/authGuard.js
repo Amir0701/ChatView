@@ -15,6 +15,6 @@ export const authGuard = (to, from, next) => {
 }
 
 export const notFound = (to, from, next) => {
-    if (to.path !== 'not-found') next({ path: 'not-found' })
+    if (to.path !== 'not-found') next({ path: '/not-found' })
     else next()
 }

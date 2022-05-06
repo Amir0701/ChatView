@@ -12,8 +12,8 @@ const routes = [
     redirect: 'chat'
   },
   {
-    path: '/login',
-    name: 'login',
+    path: '/auth',
+    name: 'auth',
     component: Login,
     //beforeEnter: redirectFromLogin
   },

@@ -12,6 +12,7 @@ export const MUTATIONS = {
 
 export const ACTIONS = {
     LOGIN:      'LOGIN',
+    REGISTER:    'REGISTER',
     LOGOUT:     'LOGOUT',
 }
 

@@ -15,4 +15,11 @@ export default {
         }
     })
         .then(response => response.data),
+
+    deleteChat: (token, chatId) => instance.delete(`/chat/${chatId}`, {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    })
+        .then(response => response.data),
 }

@@ -222,8 +222,92 @@
       </v-card>
     </v-dialog>
 
-    <v-card-text style="height: 100%">
-      <p>chats page</p>
+    <v-card-text style="height: 100%" class="pa-1">
+      <div class="chat_content">
+        <v-card>
+          <v-card-title class="white--text">
+            <v-text-field
+                label="Search"
+                single-line
+                solo
+                hide-details
+                prepend-inner-icon="mdi-magnify"
+            ></v-text-field>
+
+            <v-spacer></v-spacer>
+
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn
+                    color="white"
+                    class="text--primary"
+                    fab
+                    small
+                    @click="openChatDialog"
+                    v-bind="attrs"
+                    v-on="on"
+                >
+                  <v-icon>mdi-plus</v-icon>
+                </v-btn>
+              </template>
+              <span>Create Chat</span>
+            </v-tooltip>
+
+          </v-card-title>
+
+          <v-divider></v-divider>
+
+          <v-virtual-scroll
+              :items="chats"
+              :item-height="50"
+              height="calc(100vh - 145px)"
+          >
+            <template v-slot:default="{ item }">
+              <v-list-item>
+                <v-list-item-avatar>
+                  <v-avatar
+                      :color="getRandomColor()"
+                      size="56"
+                      class="white--text"
+                  >
+                    {{ item.name[item.name.length - 1] }}
+                  </v-avatar>
+                </v-list-item-avatar>
+
+                <v-list-item-content>
+                  <v-list-item-title>{{ item.name }}</v-list-item-title>
+                </v-list-item-content>
+
+                <v-list-item-action>
+                  <v-menu
+                      transition="slide-y-transition"
+                      bottom
+                  >
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-btn
+                          color="white"
+                          class="text--primary"
+                          small
+                          fab
+                          icon
+                          v-bind="attrs"
+                          v-on="on"
+                      >
+                        <v-icon>mdi-dots-vertical</v-icon>
+                      </v-btn>
+                    </template>
+                    <v-list dense rounded>
+                      <v-list-item @click="deleteChat(item.id)">
+                        <v-list-item-title>Delete chat</v-list-item-title>
+                      </v-list-item>
+                    </v-list>
+                  </v-menu>
+                </v-list-item-action>
+              </v-list-item>
+            </template>
+          </v-virtual-scroll>
+        </v-card>
+      </div>
     </v-card-text>
   </v-card>
 </template>
@@ -243,6 +327,7 @@ export default {
     ...mapGetters({
       userInfo: `auth/${AUTH_CONSTANTS.GETTERS.USER_INFO}`,
       token: `auth/${AUTH_CONSTANTS.GETTERS.TOKEN}`,
+      chats: `chats/${CHATS_CONSTANTS.GETTERS.CHATS}`
     })
   },
   data: () => ({
@@ -268,8 +353,17 @@ export default {
       },
       loading: false
     },
+    colors: ['#2196F3', '#90CAF9', '#64B5F6', '#42A5F5', '#1E88E5', '#1976D2', '#1565C0', '#0D47A1', '#82B1FF', '#448AFF', '#2979FF', '#2962FF'],
   }),
   methods: {
+    deleteChat: async function(chatId) {
+      await store.dispatch(`chats/${CHATS_CONSTANTS.ACTIONS.DELETE_CHAT}`, {token: this.token, chatId})
+    },
+
+    getRandomColor: function() {
+      return this.colors[Math.ceil(Math.random() * (this.colors.length - 1))]
+    },
+
     logout: () => {
       store.dispatch(`auth/${AUTH_CONSTANTS.ACTIONS.LOGOUT}`)
     },
@@ -359,3 +453,10 @@ export default {
   }
 }
 </script>
+
+<style>
+.chat_content {
+  display: grid;
+  grid-template-columns: min(30vw, 330px) 1fr;
+}
+</style>

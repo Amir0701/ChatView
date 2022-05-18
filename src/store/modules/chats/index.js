@@ -15,6 +15,11 @@ export default {
         [MUTATIONS.ADD_CHATS]: (state, chats) => {
             state.chats.push(...chats)
         },
+
+        [MUTATIONS.DELETE_CHAT]: (state, chatId) => {
+            const idx = state.chats.findIndex(chat => chat.id === chatId)
+            if (idx >= 0) state.chats.splice(idx, 1)
+        }
     },
 
     actions: {
@@ -31,5 +36,20 @@ export default {
                 context.commit(`snackbar/${SNACKBAR_CONSTANTS.MUTATIONS.SET_VISIBILITY}`, true, { root: true })
             }
         },
+
+        [ACTIONS.DELETE_CHAT]: async (context, {token, chatId}) => {
+            try {
+                // eslint-disable-next-line
+                const id = await chatsService.deleteChat(token, chatId)
+
+                context.commit(`${MUTATIONS.DELETE_CHAT}`, chatId)
+            } catch (err) {
+                const errMsg = err.response.data?.exceptions && err.response.data?.exceptions[0].message;
+
+                context.commit(`snackbar/${SNACKBAR_CONSTANTS.MUTATIONS.SET_COLOR}`, 'red', { root: true })
+                context.commit(`snackbar/${SNACKBAR_CONSTANTS.MUTATIONS.SET_MESSAGE}`, errMsg, { root: true })
+                context.commit(`snackbar/${SNACKBAR_CONSTANTS.MUTATIONS.SET_VISIBILITY}`, true, { root: true })
+            }
+        }
     }
 }

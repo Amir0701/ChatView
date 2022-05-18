@@ -8,14 +8,14 @@ import {
     LOCALSTORAGE_KEY
 } from './constants'
 import router from "@/router";
-import store from "@/store";
 
 const initialState = {
     token: '',
     user: {
         id: null,
-        username: '',
-        fullName: ''
+        nickname: '',
+        name: '',
+        email: ''
     }
 }
 
@@ -25,13 +25,15 @@ export default {
         ...initialState
     },
     getters: {
-        [GETTERS.IS_AUTHENTICATED]: state => state.token,
         [GETTERS.USER_INFO]: state => state.user,
         [GETTERS.TOKEN]: state => state.token
     },
     mutations: {
         [MUTATIONS.SET_USER]: (state, userDetails) => {
-            state.user = userDetails
+            state.user.id = userDetails?.id
+            state.user.nickname = userDetails?.nickname
+            state.user.name = userDetails?.name
+            state.user.email = userDetails?.email
         },
 
         [MUTATIONS.RESET_STORE]: (state) => {
@@ -48,25 +50,21 @@ export default {
             try {
                 const data = await authService.login(user)
 
-                store.commit(`snackbar/${SNACKBAR_CONSTANTS.MUTATIONS.SET_COLOR}`, 'success')
-                store.commit(`snackbar/${SNACKBAR_CONSTANTS.MUTATIONS.SET_MESSAGE}`, 'Welcome')
-                store.commit(`snackbar/${SNACKBAR_CONSTANTS.MUTATIONS.SET_VISIBILITY}`, true)
-                localStorage.setItem(LOCALSTORAGE_KEY, data.accessToken)
-                await context.commit(MUTATIONS.SET_TOKEN, data.accessToken)
-                await context.commit(MUTATIONS.SET_USER, {
-                    id: data?.userId,
-                    username: 'John',
-                    fullName: 'Doe'
-                })
+                context.commit(`snackbar/${SNACKBAR_CONSTANTS.MUTATIONS.SET_COLOR}`, 'success', { root: true })
+                context.commit(`snackbar/${SNACKBAR_CONSTANTS.MUTATIONS.SET_MESSAGE}`, `Welcome`, { root: true })
+                context.commit(`snackbar/${SNACKBAR_CONSTANTS.MUTATIONS.SET_VISIBILITY}`, true, { root: true })
+                localStorage.setItem(LOCALSTORAGE_KEY, data?.accessToken)
+                await context.commit(MUTATIONS.SET_TOKEN, data?.accessToken)
+                await context.commit(MUTATIONS.SET_USER, { id: data?.userId })
 
                 await router.push({path: '/'})
             } catch (err) {
                 const errMsg = err.response.data?.exceptions && err.response.data?.exceptions[0].message;
 
                 await context.dispatch(ACTIONS.LOGOUT)
-                store.commit(`snackbar/${SNACKBAR_CONSTANTS.MUTATIONS.SET_COLOR}`, 'red')
-                store.commit(`snackbar/${SNACKBAR_CONSTANTS.MUTATIONS.SET_MESSAGE}`, errMsg)
-                store.commit(`snackbar/${SNACKBAR_CONSTANTS.MUTATIONS.SET_VISIBILITY}`, true)
+                context.commit(`snackbar/${SNACKBAR_CONSTANTS.MUTATIONS.SET_COLOR}`, 'red', { root: true })
+                context.commit(`snackbar/${SNACKBAR_CONSTANTS.MUTATIONS.SET_MESSAGE}`, errMsg, { root: true })
+                context.commit(`snackbar/${SNACKBAR_CONSTANTS.MUTATIONS.SET_VISIBILITY}`, true, { root: true })
             }
         },
 
@@ -74,25 +72,21 @@ export default {
             try {
                 const data = await authService.register(user)
 
-                store.commit(`snackbar/${SNACKBAR_CONSTANTS.MUTATIONS.SET_COLOR}`, 'success')
-                store.commit(`snackbar/${SNACKBAR_CONSTANTS.MUTATIONS.SET_MESSAGE}`, `Welcome ${data?.userId}`)
-                store.commit(`snackbar/${SNACKBAR_CONSTANTS.MUTATIONS.SET_VISIBILITY}`, true)
+                context.commit(`snackbar/${SNACKBAR_CONSTANTS.MUTATIONS.SET_COLOR}`, 'success', { root: true })
+                context.commit(`snackbar/${SNACKBAR_CONSTANTS.MUTATIONS.SET_MESSAGE}`, `Welcome`, { root: true })
+                context.commit(`snackbar/${SNACKBAR_CONSTANTS.MUTATIONS.SET_VISIBILITY}`, true, { root: true })
                 localStorage.setItem(LOCALSTORAGE_KEY, data.accessToken)
                 await context.commit(MUTATIONS.SET_TOKEN, data.accessToken)
-                await context.commit(MUTATIONS.SET_USER, {
-                    id: data?.userId,
-                    username: 'John',
-                    fullName: 'Doe'
-                })
+                await context.commit(MUTATIONS.SET_USER, { id: data?.userId })
 
                 await router.push({path: '/'})
             } catch (err) {
                 const errMsg = err.response.data?.exceptions && err.response.data?.exceptions[0].message;
 
                 await context.dispatch(ACTIONS.LOGOUT)
-                store.commit(`snackbar/${SNACKBAR_CONSTANTS.MUTATIONS.SET_COLOR}`, 'red')
-                store.commit(`snackbar/${SNACKBAR_CONSTANTS.MUTATIONS.SET_MESSAGE}`, errMsg)
-                store.commit(`snackbar/${SNACKBAR_CONSTANTS.MUTATIONS.SET_VISIBILITY}`, true)
+                context.commit(`snackbar/${SNACKBAR_CONSTANTS.MUTATIONS.SET_COLOR}`, 'red', { root: true })
+                context.commit(`snackbar/${SNACKBAR_CONSTANTS.MUTATIONS.SET_MESSAGE}`, errMsg, { root: true })
+                context.commit(`snackbar/${SNACKBAR_CONSTANTS.MUTATIONS.SET_VISIBILITY}`, true, { root: true })
             }
         },
 
@@ -100,6 +94,20 @@ export default {
             localStorage.removeItem(LOCALSTORAGE_KEY)
             context.commit(MUTATIONS.RESET_STORE)
             if (router.currentRoute.path !== '/auth') await router.push({path: '/auth'})
+        },
+
+        [ACTIONS.GET_USER_INFO]: async (context, {id, token}) => {
+            try {
+                // eslint-disable-next-line
+                const { password, ...data } = await authService.getUserInfo(id, token)
+
+                await context.commit(MUTATIONS.SET_USER, data)
+            } catch (err) {
+                const errMsg = err.response.data?.exceptions && err.response.data?.exceptions[0].message;
+                context.commit(`snackbar/${SNACKBAR_CONSTANTS.MUTATIONS.SET_COLOR}`, 'red', { root: true })
+                context.commit(`snackbar/${SNACKBAR_CONSTANTS.MUTATIONS.SET_MESSAGE}`, errMsg, { root: true })
+                context.commit(`snackbar/${SNACKBAR_CONSTANTS.MUTATIONS.SET_VISIBILITY}`, true, { root: true })
+            }
         }
     }
 }

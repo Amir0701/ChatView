@@ -6,7 +6,15 @@
 
   >
     {{ message }}
-    <v-btn text @click="clear()">Close</v-btn>
+    <template v-slot:action="{ attrs }">
+      <v-btn
+          text
+          v-bind="attrs"
+          @click="clear()"
+      >
+        Close
+      </v-btn>
+    </template>
   </v-snackbar>
 </template>
 

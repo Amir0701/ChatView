@@ -1,5 +1,4 @@
 export const GETTERS = {
-    IS_AUTHENTICATED:   'IS_AUTHENTICATED',
     USER_INFO:          'USER_INFO',
     TOKEN:              'TOKEN'
 }
@@ -11,9 +10,11 @@ export const MUTATIONS = {
 }
 
 export const ACTIONS = {
-    LOGIN:      'LOGIN',
-    REGISTER:    'REGISTER',
-    LOGOUT:     'LOGOUT',
+    LOGIN:          'LOGIN',
+    REGISTER:       'REGISTER',
+    LOGOUT:         'LOGOUT',
+
+    GET_USER_INFO:  'GET_USER_INFO',
 }
 
 /*

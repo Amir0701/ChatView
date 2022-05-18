@@ -8,4 +8,11 @@ export default {
         }
     })
         .then(response => response.data),
+
+    createChat: (token, data) => instance.post(`/chat`, data, {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    })
+        .then(response => response.data),
 }

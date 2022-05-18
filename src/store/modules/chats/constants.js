@@ -8,5 +8,5 @@ export const MUTATIONS = {
 }
 
 export const ACTIONS = {
-    GET_CHATS:  'GET_CHATS',
+    GET_CHATS:      'GET_CHATS',
 }

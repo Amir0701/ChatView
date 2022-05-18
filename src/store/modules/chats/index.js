@@ -1,5 +1,6 @@
 import {ACTIONS, GETTERS, MUTATIONS} from "@/store/modules/chats/constants";
 import {chatsService} from "@/services";
+import * as SNACKBAR_CONSTANTS from "@/store/modules/snackbar/constants";
 
 export default {
     namespaced: true,
@@ -21,10 +22,14 @@ export default {
             try {
                 const data = await chatsService.getChats(userId, token)
 
-                console.log(data)
-            } catch (e) {
-                console.log(e)
+                context.commit(MUTATIONS.ADD_CHATS, data)
+            } catch (err) {
+                const errMsg = err.response.data?.exceptions && err.response.data?.exceptions[0].message;
+
+                context.commit(`snackbar/${SNACKBAR_CONSTANTS.MUTATIONS.SET_COLOR}`, 'red', { root: true })
+                context.commit(`snackbar/${SNACKBAR_CONSTANTS.MUTATIONS.SET_MESSAGE}`, errMsg, { root: true })
+                context.commit(`snackbar/${SNACKBAR_CONSTANTS.MUTATIONS.SET_VISIBILITY}`, true, { root: true })
             }
-        }
+        },
     }
 }

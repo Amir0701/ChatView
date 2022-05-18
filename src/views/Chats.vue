@@ -175,9 +175,9 @@ import { mapGetters } from "vuex";
 
 import store from "@/store";
 import * as AUTH_CONSTANTS from '@/store/modules/auth/constants';
-import {authService} from "@/services";
 import * as SNACKBAR_CONSTANTS from "@/store/modules/snackbar/constants";
-import {MUTATIONS} from "@/store/modules/auth/constants";
+import * as CHATS_CONSTANTS from "@/store/modules/chats/constants";
+import {authService} from "@/services";
 
 export default {
   name: 'chats',
@@ -226,7 +226,7 @@ export default {
         const { confirmPassword, ...toUpdate } = this.userFormData
         const data = await authService.updateProfile(this.userInfo.id, this.token, toUpdate)
 
-        await store.commit(`auth/${MUTATIONS.SET_USER}`, data)
+        await store.commit(`auth/${AUTH_CONSTANTS.MUTATIONS.SET_USER}`, data)
 
         store.commit(`snackbar/${SNACKBAR_CONSTANTS.MUTATIONS.SET_COLOR}`, 'success')
         store.commit(`snackbar/${SNACKBAR_CONSTANTS.MUTATIONS.SET_MESSAGE}`, 'Successfully updated')
@@ -242,8 +242,10 @@ export default {
     }
   },
   async created() {
-    if (this.userInfo && this.userInfo.id && this.token)
+    if (this.userInfo && this.userInfo.id && this.token) {
       await store.dispatch(`auth/${AUTH_CONSTANTS.ACTIONS.GET_USER_INFO}`, {id: this.userInfo.id, token: this.token})
+      await store.dispatch(`chats/${CHATS_CONSTANTS.ACTIONS.GET_CHATS}`, {userId: this.userInfo.id, token: this.token})
+    }
     else
       this.logout()
   }

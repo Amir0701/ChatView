@@ -22,4 +22,11 @@ export default {
         }
     })
         .then(response => response.data),
+
+    addUsersToChat: (chatId, users, token) => instance.put(`/chat/${chatId}`, users, {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    })
+        .then(response => response.data),
 }

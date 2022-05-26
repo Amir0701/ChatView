@@ -5,6 +5,7 @@ export const GETTERS = {
 
 export const MUTATIONS = {
     ADD_CHATS:      'ADD_CHATS',
+    REMOVE_CHATS:   'REMOVE_CHATS',
     DELETE_CHAT:    'DELETE_CHAT',
 }
 

@@ -9,6 +9,7 @@
           <v-card-text>
             <form ref="form" @submit.prevent="isRegister ? register() : login()">
               <v-text-field
+                  v-if="isRegister"
                   v-model="name"
                   name="name"
                   label="Name"
@@ -20,6 +21,7 @@
               ></v-text-field>
 
               <v-text-field
+                  v-if="isRegister"
                   v-model="nickname"
                   name="nickname"
                   label="Nickname"
@@ -86,7 +88,6 @@
 <script>
 import * as AUTH_CONSTANTS from "@/store/modules/auth/constants";
 import store from "@/store";
-import {UserAuthDto} from "@/dto/UserAuth.dto";
 
 export default {
   name: 'auth',
@@ -113,9 +114,13 @@ export default {
   },
   methods: {
     login: async function() {
-      const userAuth = new UserAuthDto(this.name, this.nickname, this.email, this.password);
-
-      await store.dispatch(`auth/${AUTH_CONSTANTS.ACTIONS.LOGIN}`, userAuth);
+      await store.dispatch(
+          `auth/${AUTH_CONSTANTS.ACTIONS.LOGIN}`,
+          {
+            email: this.email,
+            password: this.password,
+          }
+      );
     },
     register: async function() {
       if (this.password === this.confirmPassword) {
@@ -123,9 +128,15 @@ export default {
         this.errorMessage = "";
         this.$refs.form.reset();
 
-        const userAuth = new UserAuthDto(this.name, this.nickname, this.email, this.password);
-
-        await store.dispatch(`auth/${AUTH_CONSTANTS.ACTIONS.REGISTER}`, userAuth);
+        await store.dispatch(
+            `auth/${AUTH_CONSTANTS.ACTIONS.REGISTER}`,
+            {
+              name:       this.name,
+              nickname:   this.nickname,
+              email:      this.email,
+              password:   this.password,
+            }
+        );
       } else {
         this.errorMessage = "Password did not match"
       }

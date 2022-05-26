@@ -59,7 +59,7 @@ export default {
 
                 await router.push({path: '/'})
             } catch (err) {
-                const errMsg = err.response.data?.exceptions && err.response.data?.exceptions[0].message;
+                const errMsg = err.response?.data?.exceptions && err.response?.data?.exceptions[0].message || 'Internal error';
 
                 await context.dispatch(ACTIONS.LOGOUT)
                 context.commit(`snackbar/${SNACKBAR_CONSTANTS.MUTATIONS.SET_COLOR}`, 'red', { root: true })
@@ -81,7 +81,7 @@ export default {
 
                 await router.push({path: '/'})
             } catch (err) {
-                const errMsg = err.response.data?.exceptions && err.response.data?.exceptions[0].message;
+                const errMsg = err.response?.data?.exceptions && err.response?.data?.exceptions[0].message || 'Internal error';
 
                 await context.dispatch(ACTIONS.LOGOUT)
                 context.commit(`snackbar/${SNACKBAR_CONSTANTS.MUTATIONS.SET_COLOR}`, 'red', { root: true })
@@ -103,7 +103,7 @@ export default {
 
                 await context.commit(MUTATIONS.SET_USER, data)
             } catch (err) {
-                const errMsg = err.response.data?.exceptions && err.response.data?.exceptions[0].message;
+                const errMsg = err.response?.data?.exceptions && err.response?.data?.exceptions[0].message || 'Internal error';
                 context.commit(`snackbar/${SNACKBAR_CONSTANTS.MUTATIONS.SET_COLOR}`, 'red', { root: true })
                 context.commit(`snackbar/${SNACKBAR_CONSTANTS.MUTATIONS.SET_MESSAGE}`, errMsg, { root: true })
                 context.commit(`snackbar/${SNACKBAR_CONSTANTS.MUTATIONS.SET_VISIBILITY}`, true, { root: true })

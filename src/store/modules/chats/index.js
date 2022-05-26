@@ -34,7 +34,7 @@ export default {
                 context.commit(MUTATIONS.REMOVE_CHATS)
                 context.commit(MUTATIONS.ADD_CHATS, data)
             } catch (err) {
-                const errMsg = err.response.data?.exceptions && err.response.data?.exceptions[0].message;
+                const errMsg = err.response?.data?.exceptions && err.response?.data?.exceptions[0].message || 'Internal error';
 
                 context.commit(`snackbar/${SNACKBAR_CONSTANTS.MUTATIONS.SET_COLOR}`, 'red', { root: true })
                 context.commit(`snackbar/${SNACKBAR_CONSTANTS.MUTATIONS.SET_MESSAGE}`, errMsg, { root: true })
@@ -49,7 +49,7 @@ export default {
 
                 context.commit(`${MUTATIONS.DELETE_CHAT}`, chatId)
             } catch (err) {
-                const errMsg = err.response.data?.exceptions && err.response.data?.exceptions[0].message;
+                const errMsg = err.response?.data?.exceptions && err.response?.data?.exceptions[0].message || 'Internal error';
 
                 context.commit(`snackbar/${SNACKBAR_CONSTANTS.MUTATIONS.SET_COLOR}`, 'red', { root: true })
                 context.commit(`snackbar/${SNACKBAR_CONSTANTS.MUTATIONS.SET_MESSAGE}`, errMsg, { root: true })

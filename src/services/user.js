@@ -20,4 +20,12 @@ export default {
         }
     })
         .then(response => response.data),
+
+    getUsersLike: (searchNick, token) => instance.get(`/user`, {
+        params: { searchNick },
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    })
+        .then(response => response.data),
 }

@@ -187,11 +187,9 @@
             <v-row>
               <v-col
                   cols="12"
-                  sm="8"
-                  md="8"
               >
                 <v-text-field
-                    label="Name"
+                    label="Chat name"
                     v-model="createChatDialog.chatFormData.name"
                     minlength="1"
                     :error-messages="createChatDialog.errors.name"
@@ -199,6 +197,57 @@
                 ></v-text-field>
               </v-col>
 
+              <v-col
+                  cols="12"
+              >
+                <v-autocomplete
+                    v-model="createChatDialog.participants"
+                    :loading="createChatDialog.loading"
+                    :items="createChatDialog.users"
+                    :search-input.sync="createChatDialog.search"
+                    cache-items
+                    dense
+                    chips
+                    clearable
+                    deletable-chips
+                    small-chips
+                    multiple
+                    flat
+                    hide-no-data
+                    hide-details
+                    item-text="name"
+                    return-object
+                    color="lighten"
+                    label="Chat participants:"
+                >
+                  <template v-slot:selection="data">
+                    <v-chip
+                        v-bind="data.attrs"
+                        :input-value="data.selected"
+                        close
+                        @click="data.select"
+                        @click:close="remove(data.item)"
+                    >
+                      <v-avatar left>
+                        <v-img :src="data.item.avatar"></v-img>
+                      </v-avatar>
+                      {{ data.item.name }}
+                    </v-chip>
+                  </template>
+
+                  <template v-slot:item="data">
+                    <template>
+                      <v-list-item-avatar>
+                        <img :src="data.item.avatar">
+                      </v-list-item-avatar>
+                      <v-list-item-content>
+                        <v-list-item-title v-html="data.item.name"></v-list-item-title>
+                        <v-list-item-subtitle v-html="data.item.nickname"></v-list-item-subtitle>
+                      </v-list-item-content>
+                    </template>
+                  </template>
+                </v-autocomplete>
+              </v-col>
 
             </v-row>
           </v-container>
@@ -354,18 +403,59 @@ export default {
     createChatDialog: {
       isOpen: false,
       chatFormData: {
-        name: ''
+        name: '',
+
       },
       errors: {
         name: '',
       },
-      loading: false
+      loading: false,
+      users: [],
+      search: '',
+      participants: [],
+      timerId: null,
     },
     colors: ['#2196F3', '#90CAF9', '#64B5F6', '#42A5F5', '#1E88E5', '#1976D2', '#1565C0', '#0D47A1', '#82B1FF', '#448AFF', '#2979FF', '#2962FF'],
   }),
+  watch: {
+    'createChatDialog.search': function(val) {
+      val && val !== this.createChatDialog.participants && this.fetchUsersDebounce(val)
+    },
+  },
   methods: {
+    fetchUsersDebounce: function(pattern, timeMS = 500) {
+      clearTimeout(this.createChatDialog.timerId)
+
+      this.createChatDialog.timerId = setTimeout(() => {
+        this.querySearchUsers(pattern)
+      }, timeMS)
+    },
+
+    querySearchUsers: async function(pattern) {
+      if (this.createChatDialog.loading) return
+
+      this.createChatDialog.loading = true
+      try {
+        const data = await authService.getUsersLike(pattern, this.token)
+
+        this.createChatDialog.users.splice(0, this.createChatDialog.users.length, ...data)
+      } catch (err) {
+        const errMsg = err.response?.data?.exceptions && err.response?.data?.exceptions[0].message || 'Internal error';
+
+        store.commit(`snackbar/${SNACKBAR_CONSTANTS.MUTATIONS.SET_COLOR}`, 'red')
+        store.commit(`snackbar/${SNACKBAR_CONSTANTS.MUTATIONS.SET_MESSAGE}`, errMsg)
+        store.commit(`snackbar/${SNACKBAR_CONSTANTS.MUTATIONS.SET_VISIBILITY}`, true)
+      }
+      this.createChatDialog.loading = false
+    },
+
+    remove: function(item) {
+      const index = this.createChatDialog.participants.findIndex(participant => participant.name === item.name && participant.nickname === item.nickname)
+      if (index >= 0) this.createChatDialog.participants.splice(index, 1)
+    },
+
     getChatsList: function() {
-      return this.searchBoxQuery.trim()
+      return (this.searchBoxQuery || '').trim()
       ? this.chats.filter(chat => chat.name.includes(this.searchBoxQuery))
       : this.chats
     },
@@ -416,7 +506,7 @@ export default {
         store.commit(`snackbar/${SNACKBAR_CONSTANTS.MUTATIONS.SET_VISIBILITY}`, true)
         this.profileDialog.isOpen = false
       } catch (err) {
-        const errMsg = err.response.data?.exceptions && err.response.data?.exceptions[0].message;
+        const errMsg = err.response?.data?.exceptions && err.response?.data?.exceptions[0].message || 'Internal error';
 
         store.commit(`snackbar/${SNACKBAR_CONSTANTS.MUTATIONS.SET_COLOR}`, 'red')
         store.commit(`snackbar/${SNACKBAR_CONSTANTS.MUTATIONS.SET_MESSAGE}`, errMsg)
@@ -429,12 +519,15 @@ export default {
       this.createChatDialog.isOpen = true
       this.createChatDialog.loading = false
       this.createChatDialog.chatFormData = {}
+      this.querySearchUsers('')
     },
 
     closeChatDialog: function () {
       this.createChatDialog.isOpen = false
       this.createChatDialog.loading = false
       this.createChatDialog.chatFormData = {}
+      this.createChatDialog.participants = []
+      this.createChatDialog.search = ''
     },
 
     createChat: async function() {
@@ -446,15 +539,18 @@ export default {
         const data = await chatsService.createChat(this.token, this.createChatDialog.chatFormData)
 
         store.commit(`chats/${CHATS_CONSTANTS.MUTATIONS.ADD_CHATS}`, [data])
+
+        await chatsService.addUsersToChat(data.id, this.createChatDialog.participants, this.token)
+
         this.createChatDialog.isOpen = false
       } catch (err) {
-        const errMsg = err.response.data?.exceptions && err.response.data?.exceptions[0].message;
+        const errMsg = err.response?.data?.exceptions && err.response?.data?.exceptions[0].message || 'Internal error';
 
         store.commit(`snackbar/${SNACKBAR_CONSTANTS.MUTATIONS.SET_COLOR}`, 'red')
         store.commit(`snackbar/${SNACKBAR_CONSTANTS.MUTATIONS.SET_MESSAGE}`, errMsg)
         store.commit(`snackbar/${SNACKBAR_CONSTANTS.MUTATIONS.SET_VISIBILITY}`, true)
       }
-      this.createChatDialog.loading = true
+      this.createChatDialog.loading = false
     }
   },
   async created() {

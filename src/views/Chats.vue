@@ -198,6 +198,8 @@
                     required
                 ></v-text-field>
               </v-col>
+
+
             </v-row>
           </v-container>
         </v-card-text>
@@ -226,39 +228,44 @@
       <div class="chat_content">
         <v-card>
           <v-card-title class="white--text">
-            <v-text-field
-                label="Search"
-                single-line
-                solo
-                hide-details
-                prepend-inner-icon="mdi-magnify"
-            ></v-text-field>
-
-            <v-spacer></v-spacer>
-
-            <v-tooltip bottom>
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn
-                    color="white"
-                    class="text--primary"
-                    fab
-                    small
-                    @click="openChatDialog"
-                    v-bind="attrs"
-                    v-on="on"
-                >
-                  <v-icon>mdi-plus</v-icon>
-                </v-btn>
-              </template>
-              <span>Create Chat</span>
-            </v-tooltip>
+            <v-row>
+              <v-col cols="10" class="pa-1">
+                <v-text-field
+                    label="Search"
+                    single-line
+                    solo
+                    hide-details
+                    clearable
+                    v-model="searchBoxQuery"
+                    prepend-inner-icon="mdi-magnify"
+                ></v-text-field>
+              </v-col>
+              <v-col cols="2" class="pa-1 d-flex justify-center align-center">
+                <v-tooltip bottom>
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-btn
+                        color="white"
+                        class="text--primary"
+                        fab
+                        small
+                        @click="openChatDialog"
+                        v-bind="attrs"
+                        v-on="on"
+                    >
+                      <v-icon>mdi-plus</v-icon>
+                    </v-btn>
+                  </template>
+                  <span>Create Chat</span>
+                </v-tooltip>
+              </v-col>
+            </v-row>
 
           </v-card-title>
 
           <v-divider></v-divider>
 
           <v-virtual-scroll
-              :items="chats"
+              :items="getChatsList()"
               :item-height="50"
               height="calc(100vh - 145px)"
           >
@@ -331,6 +338,7 @@ export default {
     })
   },
   data: () => ({
+    searchBoxQuery: '',
     profileDialog: {
       isOpen: false,
       userFormData: {},
@@ -356,6 +364,12 @@ export default {
     colors: ['#2196F3', '#90CAF9', '#64B5F6', '#42A5F5', '#1E88E5', '#1976D2', '#1565C0', '#0D47A1', '#82B1FF', '#448AFF', '#2979FF', '#2962FF'],
   }),
   methods: {
+    getChatsList: function() {
+      return this.searchBoxQuery.trim()
+      ? this.chats.filter(chat => chat.name.includes(this.searchBoxQuery))
+      : this.chats
+    },
+
     deleteChat: async function(chatId) {
       await store.dispatch(`chats/${CHATS_CONSTANTS.ACTIONS.DELETE_CHAT}`, {token: this.token, chatId})
     },

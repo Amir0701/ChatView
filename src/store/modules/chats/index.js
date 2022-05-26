@@ -16,6 +16,10 @@ export default {
             state.chats.push(...chats)
         },
 
+        [MUTATIONS.REMOVE_CHATS]: (state) => {
+            (state.chats || []).splice(0, (state.chats || []).length)
+        },
+
         [MUTATIONS.DELETE_CHAT]: (state, chatId) => {
             const idx = state.chats.findIndex(chat => chat.id === chatId)
             if (idx >= 0) state.chats.splice(idx, 1)
@@ -27,6 +31,7 @@ export default {
             try {
                 const data = await chatsService.getChats(userId, token)
 
+                context.commit(MUTATIONS.REMOVE_CHATS)
                 context.commit(MUTATIONS.ADD_CHATS, data)
             } catch (err) {
                 const errMsg = err.response.data?.exceptions && err.response.data?.exceptions[0].message;

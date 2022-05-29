@@ -139,8 +139,12 @@ export default {
     images: [],
   }),
   methods: {
-    sendMessage: function () {
-      console.log(this.images)
+    sendMessage: async function () {
+      await store.dispatch(`chats/${CHATS_CONSTANTS.ACTIONS.SEND_MSG}`, {
+        images: this.images,
+        chatId: this.activeChat.id,
+        userId: this.userInfo.id,
+      })
     },
 
     deleteChat: async function (chatId) {

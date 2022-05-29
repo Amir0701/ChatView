@@ -9,9 +9,12 @@ export const MUTATIONS = {
     REMOVE_CHATS:       'REMOVE_CHATS',
     DELETE_CHAT:        'DELETE_CHAT',
     SET_ACTIVE_CHAT:    'SET_ACTIVE_CHAT',
+    ADD_MSG:            'ADD_MSG',
 }
 
 export const ACTIONS = {
     GET_CHATS:      'GET_CHATS',
     DELETE_CHAT:    'DELETE_CHAT',
+    RECEIVE_MSG:    'RECEIVE_MSG',
+    SEND_MSG:       'SEND_MSG',
 }

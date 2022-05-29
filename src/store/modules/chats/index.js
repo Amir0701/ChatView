@@ -1,15 +1,19 @@
 import {ACTIONS, GETTERS, MUTATIONS} from "@/store/modules/chats/constants";
 import {chatsService} from "@/services";
 import * as SNACKBAR_CONSTANTS from "@/store/modules/snackbar/constants";
+import Vue from "vue";
+import stompClient from "@/services/socket";
 
 export default {
     namespaced: true,
     state: {
-        chats: []
+        chats: [],
+        activeChat: null,
     },
     getters: {
         [GETTERS.CHATS]: state => state.chats,
-        [GETTERS.CHAT]: (state, id) => state.chats.find(chat => chat?.id === id)
+        [GETTERS.CHAT]: (state, id) => state.chats.find(chat => chat?.id === id),
+        [GETTERS.ACTIVE_CHAT]: state => state.activeChat,
     },
     mutations: {
         [MUTATIONS.ADD_CHATS]: (state, chats) => {
@@ -18,11 +22,20 @@ export default {
 
         [MUTATIONS.REMOVE_CHATS]: (state) => {
             (state.chats || []).splice(0, (state.chats || []).length)
+            Vue.set(state, 'activeChat', null)
         },
 
         [MUTATIONS.DELETE_CHAT]: (state, chatId) => {
             const idx = state.chats.findIndex(chat => chat.id === chatId)
             if (idx >= 0) state.chats.splice(idx, 1)
+        },
+
+        [MUTATIONS.SET_ACTIVE_CHAT]: (state, chat) => {
+            Vue.set(state, 'activeChat', chat)
+        },
+
+        [MUTATIONS.ADD_MSG]: (state, msg) => {
+            console.log(msg)
         }
     },
 
@@ -55,6 +68,29 @@ export default {
                 context.commit(`snackbar/${SNACKBAR_CONSTANTS.MUTATIONS.SET_MESSAGE}`, errMsg, { root: true })
                 context.commit(`snackbar/${SNACKBAR_CONSTANTS.MUTATIONS.SET_VISIBILITY}`, true, { root: true })
             }
+        },
+
+        [ACTIONS.RECEIVE_MSG]: async (context, payload) => {
+            console.log(payload)
+        },
+
+        [ACTIONS.SEND_MSG]: async (context, {images, chatId, userId}) => {
+            console.log(images)
+            const toSend = {chatId, userId, files: []}
+
+            let loaded = 0
+            images.forEach(image => {
+                const fr = new FileReader()
+                fr.onloadend = () => {
+                    toSend.files.push(fr.result)
+                    ++loaded
+                    if (loaded === images.length) {
+                        console.log(toSend)
+                        stompClient.send('/app/send', JSON.stringify(toSend))
+                    }
+                }
+                fr.readAsDataURL(image)
+            })
         }
     }
 }

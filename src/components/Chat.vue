@@ -43,7 +43,7 @@
             </v-menu>
           </v-card-title>
           <v-divider/>
-          <v-card-text class="flex-grow-1 overflow-y-auto" style="height: calc(100vh - 230px)">
+          <v-card-text class="flex-grow-1 overflow-y-auto" style="height: calc(100vh - 220px)">
             <template v-for="(msg) in activeChat.messages">
               <div
                   :key="msg.id"
@@ -85,20 +85,32 @@
               </div>
             </template>
           </v-card-text>
-          <v-card-text class="flex-shrink-1">
-            <v-text-field
-                v-model="newMsg"
-                label="Type a message"
-                type="text"
+          <v-divider />
+          <v-card-text class="flex-shrink-1" style="padding-top: 13px">
+            <v-file-input
+                v-model="images"
+                prepend-icon="mdi-camera"
+                accept="image/png, image/jpeg, image/bmp"
+                label="Upload image"
+                small-chips
+                multiple
+                clearable
                 no-details
                 outlined
-                @keyup.enter="sendMessage()"
                 hide-details
             >
               <template v-slot:append-outer>
                 <v-icon large @click="sendMessage()" color="indigo lighten-1">mdi-send</v-icon>
               </template>
-            </v-text-field>
+              <template v-slot:selection="{ index, text }">
+                <v-chip
+                    close
+                    @click:close="deleteImage(index)"
+                >
+                  {{ text }}
+                </v-chip>
+              </template>
+            </v-file-input>
           </v-card-text>
         </v-card>
       </v-responsive>
@@ -124,16 +136,20 @@ export default {
     })
   },
   data: () => ({
-    newMsg: '',
+    images: [],
   }),
   methods: {
     sendMessage: function () {
-      console.log(this.newMsg)
+      console.log(this.images)
     },
 
     deleteChat: async function (chatId) {
       await store.dispatch(`chats/${CHATS_CONSTANTS.ACTIONS.DELETE_CHAT}`, {token: this.token, chatId})
     },
+
+    deleteImage: function (idx) {
+      (this.images || []).splice(idx, 1)
+    }
   }
 }
 </script>
